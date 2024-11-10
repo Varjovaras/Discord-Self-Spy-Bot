@@ -1,4 +1,4 @@
-# spy
+# spy on my own discord channel
 
 To install dependencies:
 
