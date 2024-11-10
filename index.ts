@@ -16,17 +16,11 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
 });
 
-// When the client is ready, run this code (only once).
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
 client.on("messageCreate", (message) => {
-    // || "String" like you did before would return "true" in every single instance,
-    // this is case sensitive, if you wanna make it case insensitive
-    // use `message.content.toLowerCase() == "lowercasestring"`
     console.log("ali");
 
     if (message.author.bot && message.author.id === "972039350407823400") {
@@ -35,18 +29,23 @@ client.on("messageCreate", (message) => {
     }
 });
 
-client.on("messageUpdate", (message) => {
-    // || "String" like you did before would return "true" in every single instance,
-    // this is case sensitive, if you wanna make it case insensitive
-    // use `message.content.toLowerCase() == "lowercasestring"`
+client.on("messageUpdate", (_oldMessage, newMessage) => {
     console.log("ali");
 
-    if (!message.author) {
+    if (!newMessage.author) {
         return;
     }
 
-    if (message.author.bot && message.author.id === "972039350407823400") {
-        for (const data of message.embeds) {
+    if (
+        newMessage.author.bot &&
+        newMessage.author.id === "972039350407823400" &&
+        newMessage.embeds[0].title &&
+        newMessage.embeds[0].url
+    ) {
+        console.log(JSON.stringify(newMessage.embeds, null, 4));
+
+        //there should only be  1 embed
+        for (const data of newMessage.embeds) {
             console.log(data.title);
             console.log(data.url);
         }
