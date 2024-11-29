@@ -18,6 +18,10 @@ if (!SUPABASEKEY) throw Error("No supabasekey");
 
 const supabase = createClient(SUPABASEURL, SUPABASEKEY);
 
+process.on('unhandledRejection', error => {
+	console.error('Unhandled promise rejection:', error);
+});
+
 const discordClient = new Client({
     intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
 });
@@ -30,8 +34,8 @@ discordClient.on("messageCreate", (message) => {
     // console.log("ali");
 
     if (message.author.bot && message.author.id === "972039350407823400") {
-        // console.log(message);
         // message.channel.send(`Ali mesami :D ${message.author}`);
+        console.log("Message by ", message.author.displayName);
     }
 });
 
@@ -97,6 +101,10 @@ discordClient.on("messageUpdate", async (_oldMessage, newMessage) => {
         }
         console.log(`Initialized ${embedsTitle}`);
     }
+});
+
+discordClient.on(Events.ShardError, error => {
+	console.error('A websocket connection encountered an error:', error);
 });
 
 discordClient.login(TOKEN);
