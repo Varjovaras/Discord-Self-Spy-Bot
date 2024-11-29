@@ -6,6 +6,8 @@ import {
 } from "discord.js";
 import { createClient } from "@supabase/supabase-js";
 
+// import nodemailer from "nodemailer";
+
 const SUPABASEURL = Bun.env.SUPA_URL;
 const SUPABASEKEY = Bun.env.SUPA_KEY;
 const TOKEN = Bun.env.API_TOKEN;
@@ -18,8 +20,9 @@ if (!SUPABASEKEY) throw Error("No supabasekey");
 
 const supabase = createClient(SUPABASEURL, SUPABASEKEY);
 
-process.on('unhandledRejection', error => {
-	console.error('Unhandled promise rejection:', error);
+process.on("unhandledRejection", (error) => {
+	// const transporter = nodemailer.createTransport(transport[, defaults])
+	console.error("Unhandled promise rejection:", error);
 });
 
 const discordClient = new Client({
@@ -33,10 +36,9 @@ discordClient.once(Events.ClientReady, (readyClient) => {
 discordClient.on("messageCreate", (message) => {
 	// console.log("ali");
 
-    if (message.author.bot && message.author.id === "972039350407823400") {
-        // message.channel.send(`Ali mesami :D ${message.author}`);
-        console.log("Message by ", message.author.displayName);
-    }
+	if (message.author.bot && message.author.id === "972039350407823400") {
+		console.log("Message by ", message.author.displayName);
+	}
 });
 
 discordClient.on("messageUpdate", async (_oldMessage, newMessage) => {
@@ -103,8 +105,8 @@ discordClient.on("messageUpdate", async (_oldMessage, newMessage) => {
 	}
 });
 
-discordClient.on(Events.ShardError, error => {
-	console.error('A websocket connection encountered an error:', error);
+discordClient.on(Events.ShardError, (error) => {
+	console.error("A websocket connection encountered an error:", error);
 });
 
 discordClient.login(TOKEN);
