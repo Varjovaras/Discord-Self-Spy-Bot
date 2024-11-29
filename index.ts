@@ -20,20 +20,40 @@ if (!SUPABASEKEY) throw Error("No supabasekey");
 
 const supabase = createClient(SUPABASEURL, SUPABASEKEY);
 
-process.on("unhandledRejection", (error) => {
-	// const transporter = nodemailer.createTransport(transport[, defaults])
-	console.error("Unhandled promise rejection:", error);
-});
-
-const discordClient = new Client({
+const client = new Client({
 	intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
 });
 
-discordClient.once(Events.ClientReady, (readyClient) => {
+process.on("unhandledRejection", (error) => {
+	try {
+		if (client) {
+			const admin = client.users.cache.get("295910798528610305");
+			console.error("Unhandled promise rejection:", error);
+			admin?.send("Error Error!!11");
+			return;
+		}
+	} catch {
+		const discordClient = new Client({
+			intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
+		});
+		const admin = discordClient.users.cache.get("295910798528610305");
+		console.error("Unhandled promise rejection:", error);
+		admin?.send("Error Error!!11");
+		return;
+	}
+	const discordClient = new Client({
+		intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
+	});
+	const admin = discordClient.users.cache.get("295910798528610305");
+	console.error("Unhandled promise rejection:", error);
+	admin?.send("Error Error!!11");
+});
+
+client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
-discordClient.on("messageCreate", (message) => {
+client.on("messageCreate", (message) => {
 	// console.log("ali");
 
 	if (message.author.bot && message.author.id === "972039350407823400") {
@@ -41,7 +61,7 @@ discordClient.on("messageCreate", (message) => {
 	}
 });
 
-discordClient.on("messageUpdate", async (_oldMessage, newMessage) => {
+client.on("messageUpdate", async (_oldMessage, newMessage) => {
 	if (!newMessage.author) {
 		return;
 	}
@@ -105,8 +125,8 @@ discordClient.on("messageUpdate", async (_oldMessage, newMessage) => {
 	}
 });
 
-discordClient.on(Events.ShardError, (error) => {
+client.on(Events.ShardError, (error) => {
 	console.error("A websocket connection encountered an error:", error);
 });
 
-discordClient.login(TOKEN);
+client.login(TOKEN);
