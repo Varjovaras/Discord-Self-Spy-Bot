@@ -6,8 +6,6 @@ import {
 } from "discord.js";
 import { createClient } from "@supabase/supabase-js";
 
-// import nodemailer from "nodemailer";
-
 const SUPABASEURL = Bun.env.SUPA_URL;
 const SUPABASEKEY = Bun.env.SUPA_KEY;
 const TOKEN = Bun.env.API_TOKEN;
@@ -22,31 +20,6 @@ const supabase = createClient(SUPABASEURL, SUPABASEKEY);
 
 const client = new Client({
 	intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
-});
-
-process.on("unhandledRejection", (error) => {
-	try {
-		if (client) {
-			const admin = client.users.cache.get("295910798528610305");
-			console.error("Unhandled promise rejection:", error);
-			admin?.send("Error Error!!11");
-			return;
-		}
-	} catch {
-		const discordClient = new Client({
-			intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
-		});
-		const admin = discordClient.users.cache.get("295910798528610305");
-		console.error("Unhandled promise rejection:", error);
-		admin?.send("Error Error!!11");
-		return;
-	}
-	const discordClient = new Client({
-		intents: [GatewayIntentBits.Guilds, "GuildMessages", "MessageContent"],
-	});
-	const admin = discordClient.users.cache.get("295910798528610305");
-	console.error("Unhandled promise rejection:", error);
-	admin?.send("Error Error!!11");
 });
 
 client.once(Events.ClientReady, (readyClient) => {
@@ -66,8 +39,13 @@ client.on("messageUpdate", async (_oldMessage, newMessage) => {
 		return;
 	}
 
-	const embedsTitle = newMessage.embeds[0].title;
-	const embedsUrl = newMessage.embeds[0].url;
+	const embed = newMessage.embeds[0];
+	if (!embed?.title || !embed?.url) {
+		return;
+	}
+
+	const embedsTitle = embed.title;
+	const embedsUrl = embed.url;
 
 	if (
 		newMessage.author.bot &&
@@ -82,7 +60,7 @@ client.on("messageUpdate", async (_oldMessage, newMessage) => {
 			.eq("name", embedsTitle)
 			.eq("url", embedsUrl);
 
-		if (data?.length !== 0) {
+		if (data && data?.length > 0) {
 			//if song found update its amount
 			const { error } = await supabase
 				.from("songs")
@@ -98,12 +76,8 @@ client.on("messageUpdate", async (_oldMessage, newMessage) => {
 			}
 
 			//settimeout to hopefully prevent duplicate listens
-			setTimeout(() => {}, 1000);
-
-			console.log(
-				// biome-ignore lint/style/noNonNullAssertion: if data.length > 0, data[0] always exists
-				`Updated ${embedsTitle} to ${data![0].amount + 1} listens`,
-			);
+			setTimeout(() => {}, 1500);
+			console.log(`Updated ${embedsTitle} to ${data[0].amount + 1} listens`);
 
 			return;
 		}
